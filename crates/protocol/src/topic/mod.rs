@@ -9,12 +9,15 @@ impl Topic {
         Topic(s.to_string())
     }
 
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+    
+    // Simple prefix match for wildcard-like behavior
     pub fn matches(&self, other: &str) -> bool {
-        // Simple wildcard support: "service.*" matches "service.health"
-        if self.0.contains('*') {
-            let pattern = self.0.replace('*', ".*");
-            let regex = regex::Regex::new(&format!("^{}$", pattern)).unwrap();
-            regex.is_match(other)
+        if self.0.ends_with('*') {
+            let prefix = &self.0[..self.0.len()-1];
+            other.starts_with(prefix)
         } else {
             self.0 == other
         }
