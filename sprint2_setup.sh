@@ -107,6 +107,7 @@ EOF
 
 // Note: We need to add regex to Cargo.toml for wildcard support, but for Sprint 2 let's keep it simple without regex dependency yet
 // Let's simplify Topic to just string matching for now to avoid extra dependencies in Sprint 2
+
 cat > crates/protocol/src/topic/mod.rs << 'EOF'
 use serde::{Deserialize, Serialize};
 use std::fmt;
