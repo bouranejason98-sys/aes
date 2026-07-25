@@ -1,0 +1,6 @@
+[package]
+name = "aes-plugin-api"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]

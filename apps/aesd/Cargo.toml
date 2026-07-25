@@ -1,0 +1,11 @@
+[package]
+name = "aesd"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "aesd"
+path = "src/main.rs"
+
+[dependencies]
+aes-kernel = { path = "../../crates/kernel" }

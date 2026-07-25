@@ -1,0 +1,11 @@
+[app]
+name = "AES Kernel"
+version = "0.1.0"
+mode = "development"
+
+[logging]
+level = "debug"
+format = "json"
+
+[security]
+encryption_enabled = false

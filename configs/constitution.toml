@@ -1,0 +1,7 @@
+# The Constitution of the AES Kernel
+# Defines immutable rules for the system
+
+[rules]
+kernel_must_be_stable = true
+services_must_register = true
+boot_sequence_is_deterministic = true

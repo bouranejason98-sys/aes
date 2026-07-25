@@ -1,0 +1,18 @@
+[package]
+name = "aes-bootstrap"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+aes-errors = { path = "../errors" }
+aes-config = { path = "../config" }
+aes-logging = { path = "../logging" }
+aes-registry = { path = "../registry" }
+aes-event-bus = { path = "../event_bus" }
+aes-scheduler = { path = "../scheduler" }
+aes-state = { path = "../state" }
+aes-security = { path = "../security" }
+aes-health = { path = "../health" }
+aes-metrics = { path = "../metrics" }
+aes-tracing = { path = "../tracing" }
+serde = { workspace = true }

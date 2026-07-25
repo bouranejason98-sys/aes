@@ -1,0 +1,8 @@
+[package]
+name = "aes-kernel"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+aes-bootstrap = { path = "../bootstrap" }
+aes-errors = { path = "../errors" }
