@@ -17,6 +17,7 @@ members = [
     "crates/plugin_api",
     "crates/bootstrap",
     "apps/aesd",
+    "apps/test-runner",  # <-- Added this line
 ]
 resolver = "2"
 

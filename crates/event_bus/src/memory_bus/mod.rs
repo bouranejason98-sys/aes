@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+use std::panic;
 use aes_protocol::{AespEnvelope, Topic};
 use crate::publisher::Publisher;
 use crate::subscriber::{Subscriber, Handler};
@@ -50,8 +51,18 @@ impl Dispatcher for MemoryBus {
 
         drop(subs);
 
+        // CRITICAL FIX: Catch panics in individual handlers
         for handler in matched_handlers {
-            handler(envelope);
+            let envelope_clone = envelope.clone(); // Clone envelope for safe passing
+            let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                handler(&envelope_clone);
+            }));
+
+            if let Err(e) = result {
+                // Log the panic but DO NOT stop the loop
+                // In a real system, we would log this to a monitoring system
+                eprintln!("[MEMORY_BUS] Subscriber panicked: {:?}", e);
+            }
         }
     }
 }

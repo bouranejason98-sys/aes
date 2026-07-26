@@ -13,10 +13,10 @@ impl Topic {
         &self.0
     }
     
-    // Simple prefix match for wildcard-like behavior
+    // Simple prefix match for wildcard-like behavior (e.g., "system.*" matches "system.boot")
     pub fn matches(&self, other: &str) -> bool {
         if self.0.ends_with('*') {
-            let prefix = &self.0[..self.0.len()-1];
+            let prefix = &self.0[..self.0.len() - 1];
             other.starts_with(prefix)
         } else {
             self.0 == other
