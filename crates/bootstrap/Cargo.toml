@@ -15,4 +15,7 @@ aes-security = { path = "../security" }
 aes-health = { path = "../health" }
 aes-metrics = { path = "../metrics" }
 aes-tracing = { path = "../tracing" }
+aes-protocol = { path = "../protocol" }
+aes-mission = { path = "../mission" }
 serde = { workspace = true }
+serde_json = "1.0"

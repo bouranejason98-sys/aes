@@ -1,0 +1,13 @@
+[package]
+name = "aes-test-runner"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "test-runner"
+path = "src/main.rs"
+
+[dependencies]
+aes-protocol = { path = "../../crates/protocol" }
+aes-event-bus = { path = "../../crates/event_bus" }
+serde_json = "1.0"
