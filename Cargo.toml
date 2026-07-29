@@ -18,7 +18,9 @@ members = [
     "crates/bootstrap",
     "apps/aesd",
     "apps/test-runner",  # <-- Added this line
+    "crates/knowledge",
 ]
+
 resolver = "2"
 
 [workspace.package]
