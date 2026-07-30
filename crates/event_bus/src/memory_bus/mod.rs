@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::panic;
 use aes_protocol::{AespEnvelope, Topic};
@@ -6,14 +5,16 @@ use crate::publisher::Publisher;
 use crate::subscriber::{Subscriber, Handler};
 use crate::dispatcher::Dispatcher;
 
+// Subscriptions are stored in a Vec, not a HashMap, so dispatch order
+// matches subscription order and is reproducible on every run.
 pub struct MemoryBus {
-    subscribers: Arc<Mutex<HashMap<String, Vec<Handler>>>>,
+    subscribers: Arc<Mutex<Vec<(String, Vec<Handler>)>>>,
 }
 
 impl MemoryBus {
     pub fn new() -> Self {
         MemoryBus {
-            subscribers: Arc::new(Mutex::new(HashMap::new())),
+            subscribers: Arc::new(Mutex::new(Vec::new())),
         }
     }
 }
@@ -28,12 +29,18 @@ impl Publisher for MemoryBus {
 impl Subscriber for MemoryBus {
     fn subscribe(&self, topic: &str, handler: Handler) {
         let mut subs = self.subscribers.lock().unwrap();
-        subs.entry(topic.to_string())
-            .or_insert_with(Vec::new)
-            .push(handler);
+        for entry in subs.iter_mut() {
+            if entry.0 == topic {
+                entry.1.push(handler);
+                return;
+            }
+        }
+        subs.push((topic.to_string(), vec![handler]));
     }
 
-    fn unsubscribe(&self, _topic: &str) {}
+    fn unsubscribe(&self, _topic: &str) {
+        // Implementation for future
+    }
 }
 
 impl Dispatcher for MemoryBus {
@@ -51,16 +58,13 @@ impl Dispatcher for MemoryBus {
 
         drop(subs);
 
-        // CRITICAL FIX: Catch panics in individual handlers
         for handler in matched_handlers {
-            let envelope_clone = envelope.clone(); // Clone envelope for safe passing
+            let envelope_clone = envelope.clone();
             let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
                 handler(&envelope_clone);
             }));
 
             if let Err(e) = result {
-                // Log the panic but DO NOT stop the loop
-                // In a real system, we would log this to a monitoring system
                 eprintln!("[MEMORY_BUS] Subscriber panicked: {:?}", e);
             }
         }

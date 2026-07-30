@@ -6,6 +6,7 @@ pub enum KnowledgeError {
     MissingEvidence,
     InvalidCategory(String),
     IdParseError(String),
+    MissingField(String),
 }
 
 impl fmt::Display for KnowledgeError {
@@ -15,6 +16,7 @@ impl fmt::Display for KnowledgeError {
             KnowledgeError::MissingEvidence => write!(f, "Knowledge cannot be created without evidence"),
             KnowledgeError::InvalidCategory(cat) => write!(f, "Invalid category: {}", cat),
             KnowledgeError::IdParseError(id) => write!(f, "Failed to parse ID: {}", id),
+            KnowledgeError::MissingField(field) => write!(f, "Missing required field in event payload: {}", field),
         }
     }
 }

@@ -11,6 +11,7 @@ use aes_metrics::MetricsCollector;
 use aes_tracing::Tracer;
 use aes_protocol::create_event;
 use aes_mission::{MissionScheduler, MissionExecutor, Mission, Priority};
+use aes_knowledge::{KnowledgeManager, MemoryKnowledgeRepository};
 use std::time::Instant;
 use std::sync::Arc;
 
@@ -26,6 +27,7 @@ pub struct KernelContext {
     pub tracer: Tracer,
     pub mission_scheduler: MissionScheduler,
     pub mission_executor: MissionExecutor,
+    pub knowledge_manager: Arc<KnowledgeManager>,
 }
 
 impl KernelContext {
@@ -48,6 +50,26 @@ impl KernelContext {
         let mission_scheduler = MissionScheduler::new(Arc::clone(&event_bus));
         let mission_executor = MissionExecutor::new(Arc::clone(&event_bus));
 
+        event_bus.subscribe("mission.*", Arc::new(|env| {
+            println!("    [MISSION] {}", env.topic.as_str());
+        }));
+        event_bus.subscribe("knowledge.*", Arc::new(|env| {
+            println!("    [KNOWLEDGE] {}", env.topic.as_str());
+        }));
+
+        // KnowledgeManager depends on the Publisher trait object, not the
+        // concrete MemoryBus, so it stays testable against a mock
+        // publisher. Rust won't coerce Arc<MemoryBus> -> Arc<dyn Publisher>
+        // through a bare Arc::clone(&event_bus) call passed as an
+        // argument -- the coercion needs an explicitly-typed binding to
+        // land on cleanly.
+        let event_bus_as_publisher: Arc<dyn Publisher + Send + Sync> = event_bus.clone();
+        let knowledge_manager = Arc::new(KnowledgeManager::new(
+            Box::new(MemoryKnowledgeRepository::new()),
+            event_bus_as_publisher,
+        ));
+        aes_knowledge::wire_mission_completed(&event_bus, Arc::clone(&knowledge_manager));
+
         Ok(KernelContext {
             config,
             registry,
@@ -60,6 +82,7 @@ impl KernelContext {
             tracer,
             mission_scheduler,
             mission_executor,
+            knowledge_manager,
         })
     }
 
@@ -81,6 +104,7 @@ impl KernelContext {
             ("Health", "0.1.0"),
             ("MissionScheduler", "0.1.0"),
             ("MissionExecutor", "0.1.0"),
+            ("KnowledgeManager", "0.1.0"),
         ];
 
         for (name, version) in services.iter() {
@@ -109,10 +133,6 @@ impl KernelContext {
         println!("");
         println!(">>> Running First Mission: SystemHealthCheck");
 
-        self.event_bus.subscribe("mission.*", Arc::new(|env| {
-            println!("    [MISSION] {}", env.topic.as_str());
-        }));
-
         let mission = Mission::new("SystemHealthCheck", Priority::High, serde_json::json!({}));
 
         self.mission_scheduler.enqueue(mission).unwrap();
@@ -120,6 +140,9 @@ impl KernelContext {
         if let Some(m) = self.mission_scheduler.dequeue() {
             self.mission_executor.execute(m).unwrap();
         }
+
+        println!("");
+        println!(">>> Knowledge Repository: {} record(s) stored", self.knowledge_manager.count());
 
         self.state.transition(KernelState::Initializing);
         self.state.transition(KernelState::Ready);
@@ -130,6 +153,7 @@ impl KernelContext {
         println!("Kernel Status: READY");
         println!("[OK] AESP Message Bus Operational");
         println!("[OK] Mission Execution System Operational");
+        println!("[OK] Knowledge Engine Operational");
 
         Ok(())
     }

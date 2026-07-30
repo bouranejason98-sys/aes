@@ -5,6 +5,9 @@ mod source;
 mod evidence;
 mod knowledge;
 mod repository;
+mod command;
+mod manager;
+mod event_handler;
 
 pub use errors::KnowledgeError;
 pub use confidence::Confidence;
@@ -13,3 +16,6 @@ pub use source::KnowledgeSource;
 pub use evidence::Evidence;
 pub use knowledge::Knowledge;
 pub use repository::{KnowledgeRepository, MemoryKnowledgeRepository};
+pub use command::StoreKnowledgeCommand;
+pub use manager::KnowledgeManager;
+pub use event_handler::register as wire_mission_completed;
