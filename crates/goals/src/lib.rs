@@ -1,0 +1,21 @@
+mod errors;
+mod goal_id;
+mod priority;
+mod objective;
+mod constraint;
+mod lifecycle;
+mod goal;
+mod repository;
+mod command;
+mod manager;
+
+pub use errors::GoalError;
+pub use goal_id::GoalId;
+pub use priority::Priority;
+pub use objective::Objective;
+pub use constraint::{Constraint, ConstraintKind};
+pub use lifecycle::GoalState;
+pub use goal::Goal;
+pub use repository::{GoalRepository, MemoryGoalRepository};
+pub use command::CreateGoalCommand;
+pub use manager::GoalManager;

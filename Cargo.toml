@@ -19,6 +19,7 @@ members = [
     "apps/aesd",
     "apps/test-runner",  # <-- Added this line
     "crates/knowledge",
+    "crates/goals",
 ]
 
 resolver = "2"
